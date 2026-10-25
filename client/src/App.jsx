@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
-// Hosted Render backend
+// Connect to the hosted Render backend, not localhost.
 const API_URL =
   'https://student-assignment-tracker-api-1w7i.onrender.com/api/assignments'
 
@@ -27,7 +27,9 @@ async function readResponse(response) {
   }
 
   if (!response.ok) {
-    throw new Error(result.message || `Request failed: ${response.status}`)
+    throw new Error(
+      result.message || `Request failed with status ${response.status}`
+    )
   }
 
   return result
@@ -59,7 +61,7 @@ function App() {
       setAssignments(data)
     } catch (err) {
       setError(
-        `Could not load assignments: ${err.message}. Check the Render backend and its routes.`
+        `Cannot load assignments: ${err.message}. Check that your Render backend and API routes are working.`
       )
     } finally {
       setLoading(false)
@@ -132,7 +134,9 @@ function App() {
 
       await loadAssignments()
     } catch (err) {
-      setError(`Could not save assignment: ${err.message}`)
+      setError(
+        `Could not save assignment. Details: ${err.message}. Check that the Render API is reachable and allows requests from GitHub Pages.`
+      )
     } finally {
       setSaving(false)
     }

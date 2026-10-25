@@ -1,25 +1,8 @@
+require("dotenv").config();
 
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+const app = require("./app");
 
-dotenv.config();
-
-const app = express();
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Health check route
-app.get("/", (req, res) => {
-  res.status(200).json({
-    message: "Student Assignment Tracker API is running successfully!",
-  });
-});
-
-// Start server and connect to MongoDB
 const PORT = process.env.PORT || 5000;
 
 async function startServer() {
@@ -36,4 +19,3 @@ async function startServer() {
 }
 
 startServer();
-

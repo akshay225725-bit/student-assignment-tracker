@@ -12,7 +12,6 @@ const emptyForm = {
 
 async function readResponse(response) {
   const text = await response.text()
-
   let result = {}
 
   if (text) {
@@ -24,7 +23,7 @@ async function readResponse(response) {
   }
 
   if (!response.ok) {
-    throw new Error(result.message || 'Something went wrong.')
+    throw new Error(result.message || `Request failed (${response.status})`)
   }
 
   return result
@@ -44,7 +43,6 @@ function App() {
   async function loadAssignments() {
     try {
       setLoading(true)
-      setError('')
 
       const response = await fetch(API_URL)
       const result = await readResponse(response)
@@ -54,9 +52,10 @@ function App() {
         : result.data || result.assignments || []
 
       setAssignments(data)
+      setError('')
     } catch (err) {
       setError(
-        'Cannot connect to the backend. Check that your server is running on port 5000 and MongoDB is connected.'
+        `Cannot load assignments. Check that your backend is running on port 5000. Details: ${err.message}`
       )
     } finally {
       setLoading(false)
@@ -102,6 +101,12 @@ function App() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+
+    if (!form.title.trim()) {
+      setError('Please enter an assignment title.')
+      return
+    }
+
     setSaving(true)
     setError('')
 
@@ -117,6 +122,7 @@ function App() {
         },
         body: JSON.stringify({
           ...form,
+          title: form.title.trim(),
           dueDate: form.dueDate || null,
         }),
       })
@@ -129,7 +135,9 @@ function App() {
 
       await loadAssignments()
     } catch (err) {
-      setError(err.message || 'Could not save the assignment.')
+      setError(
+        `Could not save assignment. Details: ${err.message}`
+      )
     } finally {
       setSaving(false)
     }
@@ -159,7 +167,9 @@ function App() {
       await readResponse(response)
       await loadAssignments()
     } catch (err) {
-      setError(err.message || 'Could not delete the assignment.')
+      setError(
+        `Could not delete assignment. Details: ${err.message}`
+      )
     }
   }
 
@@ -193,7 +203,9 @@ function App() {
 
     const parsed = new Date(`${String(date).slice(0, 10)}T00:00:00`)
 
-    if (Number.isNaN(parsed.getTime())) return 'No deadline'
+    if (Number.isNaN(parsed.getTime())) {
+      return 'No deadline'
+    }
 
     return parsed.toLocaleDateString('en-IN', {
       day: 'numeric',
@@ -291,7 +303,7 @@ function App() {
         </section>
 
         {error && (
-          <div className="error-banner">
+          <div className="error-banner" role="alert">
             <span>{error}</span>
             <button
               aria-label="Dismiss error"

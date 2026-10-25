@@ -7,6 +7,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Root route
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Student Assignment Tracker API is running!"
+  });
+});
+
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({
@@ -23,9 +31,9 @@ app.use("/api/assignments", assignmentRoutes);
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: "Route not found"
+    message: "Route not found",
+    path: req.originalUrl
   });
 });
 
-// Export the Express app
 module.exports = app;

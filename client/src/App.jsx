@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
-const API_URL = 'http://localhost:5000/api/assignments'
-
+const API_URL = 'https://student-assignment-tracker-api-1w7i.onrender.com/api/assignments'
 const emptyForm = {
   title: '',
   description: '',

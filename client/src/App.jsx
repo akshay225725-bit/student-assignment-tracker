@@ -1,7 +1,11 @@
+
 import { useEffect, useState } from 'react'
 import './App.css'
 
-const API_URL = 'https://student-assignment-tracker-api-1w7i.onrender.com/api/assignments'
+// Hosted Render backend
+const API_URL =
+  'https://student-assignment-tracker-api-1w7i.onrender.com/api/assignments'
+
 const emptyForm = {
   title: '',
   description: '',
@@ -23,7 +27,7 @@ async function readResponse(response) {
   }
 
   if (!response.ok) {
-    throw new Error(result.message || `Request failed (${response.status})`)
+    throw new Error(result.message || `Request failed: ${response.status}`)
   }
 
   return result
@@ -43,6 +47,7 @@ function App() {
   async function loadAssignments() {
     try {
       setLoading(true)
+      setError('')
 
       const response = await fetch(API_URL)
       const result = await readResponse(response)
@@ -52,10 +57,9 @@ function App() {
         : result.data || result.assignments || []
 
       setAssignments(data)
-      setError('')
     } catch (err) {
       setError(
-        `Cannot load assignments. Check that your backend is running on port 5000. Details: ${err.message}`
+        `Could not load assignments: ${err.message}. Check the Render backend and its routes.`
       )
     } finally {
       setLoading(false)
@@ -101,12 +105,6 @@ function App() {
 
   async function handleSubmit(event) {
     event.preventDefault()
-
-    if (!form.title.trim()) {
-      setError('Please enter an assignment title.')
-      return
-    }
-
     setSaving(true)
     setError('')
 
@@ -122,7 +120,6 @@ function App() {
         },
         body: JSON.stringify({
           ...form,
-          title: form.title.trim(),
           dueDate: form.dueDate || null,
         }),
       })
@@ -135,9 +132,7 @@ function App() {
 
       await loadAssignments()
     } catch (err) {
-      setError(
-        `Could not save assignment. Details: ${err.message}`
-      )
+      setError(`Could not save assignment: ${err.message}`)
     } finally {
       setSaving(false)
     }
@@ -167,9 +162,7 @@ function App() {
       await readResponse(response)
       await loadAssignments()
     } catch (err) {
-      setError(
-        `Could not delete assignment. Details: ${err.message}`
-      )
+      setError(`Could not delete assignment: ${err.message}`)
     }
   }
 
@@ -203,9 +196,7 @@ function App() {
 
     const parsed = new Date(`${String(date).slice(0, 10)}T00:00:00`)
 
-    if (Number.isNaN(parsed.getTime())) {
-      return 'No deadline'
-    }
+    if (Number.isNaN(parsed.getTime())) return 'No deadline'
 
     return parsed.toLocaleDateString('en-IN', {
       day: 'numeric',
@@ -303,7 +294,7 @@ function App() {
         </section>
 
         {error && (
-          <div className="error-banner" role="alert">
+          <div className="error-banner">
             <span>{error}</span>
             <button
               aria-label="Dismiss error"
@@ -330,7 +321,9 @@ function App() {
               <div className="stat-icon orange">◷</div>
             </div>
             <div className="stat-number">{pending}</div>
-            <div className="stat-caption">Waiting to be completed</div>
+            <div className="stat-caption">
+              Waiting to be completed
+            </div>
           </div>
 
           <div className="stat-card">
@@ -339,7 +332,9 @@ function App() {
               <div className="stat-icon blue">↗</div>
             </div>
             <div className="stat-number">{inProgress}</div>
-            <div className="stat-caption">Currently being worked on</div>
+            <div className="stat-caption">
+              Currently being worked on
+            </div>
           </div>
 
           <div className="stat-card">

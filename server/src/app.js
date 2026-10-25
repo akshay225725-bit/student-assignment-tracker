@@ -3,9 +3,20 @@ const cors = require("cors");
 
 const app = express();
 
-// Middleware
-// Allow requests from the GitHub Pages frontend and local development.
-app.use(cors());
+// CORS configuration for GitHub Pages and local development
+const corsOptions = {
+  origin: [
+    "https://akshay225725-bit.github.io",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204
+};
+
+// Apply CORS before registering any routes
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Root route
@@ -24,10 +35,8 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Import assignment routes
+// Assignment routes
 const assignmentRoutes = require("./routes/assignmentRoutes");
-
-// Register assignment routes
 app.use("/api/assignments", assignmentRoutes);
 
 // Handle unknown routes
@@ -39,5 +48,4 @@ app.use((req, res) => {
   });
 });
 
-// Export the Express app
 module.exports = app;
